@@ -209,17 +209,8 @@ class Trie:
                 self._collect_suggestions(node.children[i], prefix + chr(i), suggestions)
 
 dbHelper = DbHelper()
-books = dbHelper.get_books()
-    
-keys = [book['title'] for book in books]
-output = ['Not present in the trie', 'Present in the trie']
+bookTrie = Trie()
 
-trie = Trie()
+for key in [book['title'] for book in dbHelper.get_books()]:
+    bookTrie.insert(key)
 
-for key in keys:
-    trie.insert(key)
-
-for key in ['Laskar Pelangi', 'Halo']:
-    print(f'{key} = {output[trie.search(key)]}')
-
-print(f'Laskar : {trie.autocomplete("Laskar")}')
