@@ -1,3 +1,5 @@
+import os
+import pandas
 import csv
 from pathlib import Path
 
@@ -86,7 +88,44 @@ class Trie:
 
 bookTrie = Trie()
 
-for key in [book['title'] for book in read_books_data()]:
+books = read_books_data()
+
+for key in [book['title'] for book in books]:
     bookTrie.insert(key)
 
-print(f'hasil : {bookTrie.autocomplete("Cla")}')
+df = pandas.DataFrame(books)
+
+page = 1
+
+while True:
+    os.system('cls')
+    print(df.iloc[25 * (page - 1):25 * page])
+    print('-' * 40)
+    print('1. Halaman sebelumnya')
+    print('2. Halaman selanjutnya')
+    print('3. Pinjam buku')
+    print('0. Exit')
+    choice = int(input('Pilihan Anda : '))
+
+    if (choice == 1):
+        if (page > 1):
+            page -= 1
+    elif (choice == 2):
+        page += 1
+    elif (choice == 3):
+        autocompleteResults = bookTrie.autocomplete(input("Mau pinjam buku apa? : "))
+        if (len(autocompleteResults) == 0):
+            input('Buku tidak ditemukan')
+            continue
+        print('-' * 40)
+        for i in range(len(autocompleteResults)):
+            print(f'{i + 1} {autocompleteResults[i]}')
+        print('-' * 40)
+        autocompleteChoice = int(input('Pilihan Anda : '))
+        book = list(filter(lambda e: e['title'] == autocompleteResults[autocompleteChoice - 1], books))[0]
+        print(book)
+        input('Pinjam buku (y/t) : ')
+    else:
+        break
+
+
