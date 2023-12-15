@@ -1,25 +1,22 @@
 import os
 import pandas
 import csv
-from pathlib import Path
 
 def read_books_data():
-    filename = 'books'
-    filepath = Path('databases') / f'{filename}.csv'
-    fields = []
     data = []
-
-    if not filepath.exists():
-        return []
-
-    with open(filepath, mode='r') as file:
-        reader = csv.reader(file)
-        header = next(reader)
-        fields = header
+    with open('books.csv') as file:
+        reader = csv.DictReader(file)
         for row in reader:
-            data.append(dict(zip(fields, row)))
-
+            data.append(row)
     return data
+
+def update_stock(books):
+    with open('books.csv', 'w', newline='') as file:
+        writer = csv.DictWriter(file, ['isbn','title','book_author','year_of_publication','publisher','stock'])
+        
+        writer.writeheader()
+        writer.writerows(books)
+
 
 class TrieNode:
     def __init__(self):
@@ -123,8 +120,25 @@ while True:
         print('-' * 40)
         autocompleteChoice = int(input('Pilihan Anda : '))
         book = list(filter(lambda e: e['title'] == autocompleteResults[autocompleteChoice - 1], books))[0]
-        print(book)
-        input('Pinjam buku (y/t) : ')
+        print(f'isbn         : {book["isbn"]}')
+        print(f'Judul        : {book["title"]}')
+        print(f'Penulis      : {book["book_author"]}')
+        print(f'Tahun terbit : {book["year_of_publication"]}')
+        print(f'Penerbit     : {book["publisher"]}')
+        print(f'Stok         : {book["stock"]}')
+        print('-' * 40)
+        isBorrowingBook = input(f'Pinjam buku "{book["title"]}"? (y/t) : ') == 'y'
+        if isBorrowingBook is not True:
+            continue
+        amount = int(input('Jumlah buku yang akan dipinjam : '))
+        stock = int(book['stock'])
+        if stock - amount < 0:
+            input('Stok sedang kosong!')
+            continue
+        book['stock'] = stock - amount
+        index = books.index(book)
+        books[index] = book
+        update_stock(books)
     else:
         break
 
